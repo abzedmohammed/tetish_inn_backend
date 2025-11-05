@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: tetish-inn
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tetish_inn
+    username: postgres
+    password: Zed.z1z0
+    driver-class-name: org.postgresql.Driver
+
+  security:
+    user:
+      name: admin
+      password: admin
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: abzedtet@gmail.com
+    password: "msqn pnmj wsyy jhus"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  jwt:
+    access-secret: "kZ7Yt+Xh3gq1V9m8nP4R5Q0sJ6wT2uLv8F+M3dYjV7aHqB9xKfR4Lp2sG0eN8tWc"
+    refresh-secret: "mH3aV5c7Tq8N2pR9fL4sD0kQ7wX1yB6zJvP3nY8rF2eU5tK1bZ9oW6gH0qL3xC7s"
+    access-expiration-minutes: 15
+    refresh-expiration-days: 7
+
+
+server:
+  port: 8080
+  servlet:
+    session:
+      cookie:
+        http-only: true
