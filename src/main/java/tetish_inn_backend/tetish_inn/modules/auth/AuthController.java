@@ -1,8 +1,10 @@
 package tetish_inn_backend.tetish_inn.modules.auth;
 
+import com.cloudinary.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -14,10 +16,10 @@ public class AuthController {
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseBody> login(@RequestBody AuthRequest request) {
-        AuthResponse auth = authService.login(request.getEmail(), request.getPassword());
+    public ResponseEntity<ApiResponse<Object>> login(@RequestBody AuthRequest request) {
+        ApiResponse<AuthResponse> auth = authService.login(request.getEmail(), request.getPassword());
 
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, auth.refreshToken())
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, auth.getData().refreshToken())
                 .httpOnly(true)
                 .secure(false) // set to true in production (HTTPS)
                 .sameSite("Lax")
@@ -25,11 +27,11 @@ public class AuthController {
                 .maxAge(7 * 24 * 60 * 60)
                 .build();
 
-        AuthResponseBody body = new AuthResponseBody(auth.accessToken());
+        AuthResponseBody body = new AuthResponseBody(auth.getData().accessToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(body);
+                .body(ApiResponse.success(body));
     }
 
     @PostMapping("/refresh")

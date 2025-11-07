@@ -11,7 +11,6 @@ public class SaveUserDTO {
     private String email;
     private String phone;
     private String password;
-    private String avatar;
 
     @Enumerated(EnumType.STRING)
     private UserTypes profile;

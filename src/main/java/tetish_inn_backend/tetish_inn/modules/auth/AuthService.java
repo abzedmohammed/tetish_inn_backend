@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
 import tetish_inn_backend.tetish_inn.modules.security.JwtService;
 import tetish_inn_backend.tetish_inn.modules.user.User;
 import tetish_inn_backend.tetish_inn.modules.user.UserRepository;
@@ -19,13 +20,15 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
 
-    public AuthResponse login(String email, String password) {
-        Authentication auth = authenticationManager.authenticate(
+    public ApiResponse<AuthResponse> login(String email, String password) {
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
 
         User user = userRepository.findByUsrEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        refreshTokenService.revokeAllForUser(user.getUsrId());
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(email);
@@ -33,8 +36,15 @@ public class AuthService {
         Instant expiry = jwtService.getRefreshExpiration(refreshToken).toInstant();
         refreshTokenService.createRefreshToken(user, refreshToken, expiry);
 
-        return new AuthResponse(accessToken, refreshToken, user.getUsrId());
+        AuthResponse authResponse = new AuthResponse(
+                accessToken,
+                refreshToken,
+                user.getUsrId()
+        );
+
+        return ApiResponse.success(authResponse);
     }
+
 
     public String refreshAccessToken(String refreshToken) {
         if (!jwtService.validateRefreshToken(refreshToken)) {

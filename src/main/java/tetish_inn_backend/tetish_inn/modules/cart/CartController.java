@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
 import tetish_inn_backend.tetish_inn.common.utils.PaginatedResponse;
 import tetish_inn_backend.tetish_inn.common.utils.PaginationRequest;
-import tetish_inn_backend.tetish_inn.modules.cart.CartService;
 import tetish_inn_backend.tetish_inn.modules.cart.dto.CartRequestDTO;
 import tetish_inn_backend.tetish_inn.modules.cart.dto.CartResponseDTO;
 

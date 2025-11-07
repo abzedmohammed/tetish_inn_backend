@@ -1,6 +1,5 @@
-package tetish_inn_backend.tetish_inn.modules.user.mapper;
+package tetish_inn_backend.tetish_inn.modules.user;
 
-import tetish_inn_backend.tetish_inn.modules.user.User;
 import tetish_inn_backend.tetish_inn.modules.user.dto.SaveUserDTO;
 
 public class UserMapper {
@@ -11,7 +10,6 @@ public class UserMapper {
         entity.setUsrPhone(dto.getPhone());
         entity.setUsrPassword(dto.getPassword());
         entity.setUsrType(dto.getProfile());
-        entity.setUsrAvatar(dto.getAvatar());
 
         return  entity;
     }

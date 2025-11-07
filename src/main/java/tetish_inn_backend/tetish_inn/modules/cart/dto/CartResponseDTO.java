@@ -7,6 +7,6 @@ import java.util.UUID;
     @Data
     public class CartResponseDTO {
     private UUID id;
-    private BigDecimal crtTotal;
-    private BigDecimal crtQuantity;
+    private BigDecimal crtAmount;
+    private Integer crtQuantity;
     }

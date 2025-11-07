@@ -1,5 +1,6 @@
 package tetish_inn_backend.tetish_inn.modules.auth;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tetish_inn_backend.tetish_inn.modules.user.User;
@@ -33,6 +34,7 @@ public class RefreshTokenService {
         repository.save(token);
     }
 
+    @Transactional
     public void revokeAllForUser(UUID userId) {
         repository.deleteByUserUsrId(userId);
     }

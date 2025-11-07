@@ -1,25 +1,19 @@
 package tetish_inn_backend.tetish_inn.modules.cart;
 
-import jakarta.persistence.*;
-
+    import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-
 import lombok.Getter;
 import lombok.Setter;
 import tetish_inn_backend.tetish_inn.modules.audit.BaseEntity;
-import tetish_inn_backend.tetish_inn.modules.snack.Snack;
-import tetish_inn_backend.tetish_inn.modules.user.User;
+    import tetish_inn_backend.tetish_inn.modules.snack.Snack;
+    import tetish_inn_backend.tetish_inn.modules.user.User;
 
 @Getter
-@Setter
-@Entity
-@Table(name = "carts")
-public class Cart extends BaseEntity {
+    @Setter
+    @Entity
+    @Table(name = "carts")
+    public class Cart extends BaseEntity {
 
     @Id
 
@@ -28,27 +22,21 @@ public class Cart extends BaseEntity {
     private UUID id;
 
 
-    private BigDecimal crtTotal;
+    private BigDecimal crtAmount;
 
-    private BigDecimal crtQuantity;
-
-
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-
-    private List<User> users = new ArrayList<>();
+    private Integer crtQuantity;
 
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 
-    @JoinTable(
+    @JoinColumn(name = "snack_id")
 
-            name = "cart_snack",
+    private Snack snack;
 
-            joinColumns = @JoinColumn(name = "cart_id"),
 
-            inverseJoinColumns = @JoinColumn(name = "snack_id")
+    @ManyToOne(fetch = FetchType.LAZY)
 
-    )
+    @JoinColumn(name = "user_id")
 
-    private Set<Snack> snacks = new HashSet<>();
-}
+    private User user;
+    }

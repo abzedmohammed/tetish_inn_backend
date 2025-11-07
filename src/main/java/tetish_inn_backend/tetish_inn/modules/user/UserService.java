@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
 import tetish_inn_backend.tetish_inn.modules.user.dto.SaveUserDTO;
-import tetish_inn_backend.tetish_inn.modules.user.mapper.UserMapper;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +21,12 @@ public class UserService {
     public ResponseEntity<ApiResponse<Object>> create(SaveUserDTO request) {
         User user = UserMapper.toEntity(request);
         boolean exists = userRepository.existsByUsrEmail(request.getEmail());
+        boolean existsPhone = userRepository.existsByUsrPhone(request.getPhone());
+        if (existsPhone) {
+            return ResponseEntity.ok(ApiResponse.error(
+                    "Phone number already in use"
+            ));
+        }
         if (exists) {
             return ResponseEntity.ok(ApiResponse.error(
                     "Email already in use"
