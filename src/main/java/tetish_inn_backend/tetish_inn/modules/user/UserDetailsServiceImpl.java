@@ -20,10 +20,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new RuntimeException(e);
         }
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsrEmail())
-                .password(user.getUsrPassword())
-                .roles(user.getUsrType().name())
-                .build();
+        return new UserDetailsImpl(user);
     }
 }

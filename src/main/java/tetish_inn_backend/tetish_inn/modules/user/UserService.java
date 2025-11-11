@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
 import tetish_inn_backend.tetish_inn.modules.user.dto.SaveUserDTO;
 
+import java.math.BigDecimal;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -33,6 +35,7 @@ public class UserService {
             ));
         }
         user.setUsrPassword(passwordEncoder.encode(request.getPassword()));
+        user.setUsrBalance(new BigDecimal(1500));
         User savedUser = userRepository.save(user);
 
         return ResponseEntity.ok(ApiResponse.success(

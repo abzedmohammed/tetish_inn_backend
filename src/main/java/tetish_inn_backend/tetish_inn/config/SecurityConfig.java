@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/snacks/**").permitAll()
+                        .requestMatchers("/api/snacks/all").permitAll()
                         .requestMatchers("/api/cloudinary/**").permitAll()
                         .requestMatchers("/tet_store/files/**").permitAll()
                         .requestMatchers("/api/user/save").permitAll()

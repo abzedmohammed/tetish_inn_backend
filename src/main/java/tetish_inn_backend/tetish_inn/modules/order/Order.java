@@ -1,4 +1,4 @@
-package tetish_inn_backend.tetish_inn.modules.cart;
+package tetish_inn_backend.tetish_inn.modules.order;
 
     import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -12,8 +12,8 @@ import tetish_inn_backend.tetish_inn.modules.audit.BaseEntity;
 @Getter
     @Setter
     @Entity
-    @Table(name = "carts")
-    public class Cart extends BaseEntity {
+    @Table(name = "orders")
+    public class Order extends BaseEntity {
 
     @Id
 
@@ -22,9 +22,9 @@ import tetish_inn_backend.tetish_inn.modules.audit.BaseEntity;
     private UUID id;
 
 
-    private BigDecimal crtAmount;
+    private BigDecimal ordAmount;
 
-    private Integer crtQuantity;
+    private BigDecimal ordTotal;
 
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -34,7 +34,7 @@ import tetish_inn_backend.tetish_inn.modules.audit.BaseEntity;
     private Snack snack;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 
     @JoinColumn(name = "user_id")
 

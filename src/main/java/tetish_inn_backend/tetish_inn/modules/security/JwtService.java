@@ -1,14 +1,21 @@
 package tetish_inn_backend.tetish_inn.modules.security;
 
-import io.jsonwebtoken.*;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.JwtException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tetish_inn_backend.tetish_inn.modules.user.User;
 import tetish_inn_backend.tetish_inn.modules.user.UserRepository;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -17,26 +24,19 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
     private final UserRepository userRepository;
+    private final Dotenv dotenv = Dotenv.load();
 
-    private final SecretKey accessKey;
-    private final SecretKey refreshKey;
-    private final int accessExpirationMinutes;
-    private final int refreshExpirationDays;
+    String accessSecret = dotenv.get("APP_JWT_ACCESS_SECRET");
+    String refreshSecret = dotenv.get("APP_JWT_REFRESH_SECRET");
 
-    public JwtService(
-            UserRepository userRepository, @Value("${app.jwt.access-secret}") String accessSecret,
-            @Value("${app.jwt.refresh-secret}") String refreshSecret,
-            @Value("${app.jwt.access-expiration-minutes}") int accessExpirationMinutes,
-            @Value("${app.jwt.refresh-expiration-days}") int refreshExpirationDays
-    ) {
-        this.userRepository = userRepository;
-        this.accessKey = Keys.hmacShaKeyFor(io.jsonwebtoken.io.Decoders.BASE64.decode(accessSecret));
-        this.refreshKey = Keys.hmacShaKeyFor(io.jsonwebtoken.io.Decoders.BASE64.decode(refreshSecret));
-        this.accessExpirationMinutes = accessExpirationMinutes;
-        this.refreshExpirationDays = refreshExpirationDays;
-    }
+    private final SecretKey accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
+    private final SecretKey refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
+    private final int accessExpirationMinutes = Integer.parseInt(dotenv.get("APP_JWT_ACCESS_EXPIRATION_MINUTES", "15"));
+    private final int refreshExpirationDays = Integer.parseInt(dotenv.get("APP_JWT_REFRESH_EXPIRATION_DAYS", "1"));
+
 
     public String generateAccessToken(User user) {
         Instant now = Instant.now();
@@ -46,6 +46,7 @@ public class JwtService {
         claims.put("role", user.getUsrType());
         claims.put("name", user.getUsrNames());
         claims.put("avatar", user.getUsrAvatar());
+        claims.put("balance", user.getUsrBalance());
 
         return Jwts.builder()
                 .subject(user.getUsrId().toString())
@@ -71,18 +72,29 @@ public class JwtService {
 
     public boolean validateAccessToken(String token) {
         try {
-            Jwts.parser().build().parse(token);
+            Jwts.parser()
+                    .verifyWith(refreshKey)
+                    .build()
+                    .parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException ex) {
+            System.out.println("Token has expired: " + ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token has expired");
         } catch (JwtException ex) {
+            System.out.println("Error validating token: " + ex.getMessage());
             return false;
         }
     }
 
     public boolean validateRefreshToken(String token) {
         try {
-            Jwts.parser().build().parse(token);
+            Jwts.parser()
+                    .verifyWith(accessKey)
+                    .build()
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException ex) {
+            System.out.println("Error validating refresh token: " + ex.getMessage());
             return false;
         }
     }
@@ -109,7 +121,7 @@ public class JwtService {
     public User extractUserFromRefreshToken(String token) {
         Claims claims = extractAllClaims(token, refreshKey);
 
-        String userId = claims.getSubject(); // you used user ID as subject
+        String userId = claims.getSubject();
 
         return userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new RuntimeException("User not found"));

@@ -31,7 +31,7 @@ public class AuthService {
         refreshTokenService.revokeAllForUser(user.getUsrId());
 
         String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(email);
+        String refreshToken = jwtService.generateRefreshToken(user.getUsrId().toString());
 
         Instant expiry = jwtService.getRefreshExpiration(refreshToken).toInstant();
         refreshTokenService.createRefreshToken(user, refreshToken, expiry);

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import tetish_inn_backend.tetish_inn.common.enums.UserTypes;
 import tetish_inn_backend.tetish_inn.modules.audit.BaseEntity;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -23,6 +24,7 @@ public class User extends BaseEntity {
     private String usrAvatar;
     private String usrAddress;
     private String usrPassword;
+    private BigDecimal usrBalance;
 
     @Enumerated(EnumType.STRING)
     private UserTypes usrType;
