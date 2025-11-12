@@ -6,11 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import tetish_inn_backend.tetish_inn.common.utils.ApiResponse;
+import tetish_inn_backend.tetish_inn.modules.order.OrderRepository;
+import tetish_inn_backend.tetish_inn.modules.order.dto.OrderRequestDTO;
 import tetish_inn_backend.tetish_inn.modules.user.dto.SaveUserDTO;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static tetish_inn_backend.tetish_inn.common.utils.GlobalCC.getCurrentUser;
 
 @Service
 @AllArgsConstructor
@@ -18,6 +27,7 @@ import java.math.BigDecimal;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrderRepository orderRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Object>> create(SaveUserDTO request) {
@@ -42,5 +52,26 @@ public class UserService {
                 "User created successfully",
                 savedUser
         ));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Object>> userSummary(){
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> mainResult = new HashMap<>();
+        List<OrderRequestDTO>list = new ArrayList<>();
+        User user = getCurrentUser();
+
+        result.put("userName", user.getUsrNames().split(" ")[0]);
+        result.put("orders", new BigDecimal(0));
+        result.put("balance", user.getUsrBalance());
+        result.put("joinDate", user.getCreatedAt());
+        result.put("recentOrder", new BigDecimal(0));
+        result.put("orderHistory", list);
+
+        mainResult.put("result", result);
+
+        return ResponseEntity.ok().body(
+                ApiResponse.success("Okay", mainResult)
+        );
     }
 }

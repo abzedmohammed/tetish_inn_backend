@@ -1,5 +1,6 @@
 package tetish_inn_backend.tetish_inn.modules.snack;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import jakarta.persistence.*;
@@ -26,7 +27,8 @@ public class Snack extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "snk_usr_id", referencedColumnName = "usrId")
-    private User snkUsrId;
+    @NotNull
+    private User snkUser;
 
     @Lob
     @Column(columnDefinition = "TEXT")

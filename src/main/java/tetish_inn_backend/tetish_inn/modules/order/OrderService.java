@@ -26,6 +26,8 @@ import tetish_inn_backend.tetish_inn.modules.order.dto.BulkOrderRequestDTO;
 import tetish_inn_backend.tetish_inn.modules.order.dto.OrderRequestDTO;
 import tetish_inn_backend.tetish_inn.modules.order.dto.OrderResponseDTO;
 import tetish_inn_backend.tetish_inn.modules.security.JwtService;
+import tetish_inn_backend.tetish_inn.modules.snack.Snack;
+import tetish_inn_backend.tetish_inn.modules.snack.SnackRepository;
 import tetish_inn_backend.tetish_inn.modules.user.User;
 import tetish_inn_backend.tetish_inn.modules.user.UserRepository;
 
@@ -40,37 +42,40 @@ public class OrderService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final SnackRepository snackRepository;
 
     @Transactional
     public ResponseEntity<ApiResponse<Object>> saveOrUpdate(BulkOrderRequestDTO request) {
-        User user = getCurrentUser();
+        User currentUser = getCurrentUser();
+        User user = userRepository.findById(currentUser.getUsrId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // Calculate total amount for all orders
         BigDecimal totalAmount = request.getOrders().stream()
                 .map(OrderRequestDTO::getOrdTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Check if user has sufficient balance
         if (user.getUsrBalance().compareTo(totalAmount) < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
 
-        // Process all orders
         List<Order> savedOrders = new ArrayList<>();
         for (OrderRequestDTO orderRequest : request.getOrders()) {
             Order entity = orderMapper.toEntity(orderRequest);
+
+            Snack snack = snackRepository.findById(orderRequest.getSnackId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Snack not found"));
+            User vendor = userRepository.findById(snack.getSnkUser().getUsrId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendor not found"));
             entity.setUser(user);
+            entity.setSnack(snack);
+            entity.setVendor(vendor);
             savedOrders.add(entity);
         }
 
-        // Deduct total balance once
         user.setUsrBalance(user.getUsrBalance().subtract(totalAmount));
-        userRepository.save(user);
 
-        // Save all orders in bulk
         orderRepository.saveAll(savedOrders);
 
-        // Refresh tokens
         refreshTokenService.revokeAllForUser(user.getUsrId());
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user.getUsrId().toString());

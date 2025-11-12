@@ -37,5 +37,5 @@ public abstract class BaseEntity {
     private UUID updatedBy;
 
     @Column(name= "status")
-    private String status;
+    private String status = "ACTIVE";
 }

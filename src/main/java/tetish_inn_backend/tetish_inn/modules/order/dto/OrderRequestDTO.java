@@ -1,12 +1,13 @@
 package tetish_inn_backend.tetish_inn.modules.order.dto;
 
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
 public class OrderRequestDTO {
-private BigDecimal ordAmount;
-private BigDecimal ordTotal;
-private UUID snackId;
+    private BigDecimal ordAmount;
+    private BigDecimal ordTotal;
+    private UUID snackId;
 }

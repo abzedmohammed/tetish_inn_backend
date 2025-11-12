@@ -10,24 +10,18 @@ import tetish_inn_backend.tetish_inn.modules.user.User;
 import java.util.Optional;
 import java.util.UUID;
 
+import static tetish_inn_backend.tetish_inn.common.utils.GlobalCC.getCurrentUser;
+
 @Component("auditorAware")
 public class AuditorAwareImpl implements AuditorAware<UUID> {
     @Override
-    @NonNull
     public Optional<UUID> getCurrentAuditor() {
-        // TODO: Get currently authenticated user instead of this placeholder
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.isAuthenticated()) {
-                Object principal = authentication.getPrincipal();
-                if (principal instanceof User user) {
-                    return Optional.of(user.getUsrId());
-                }
-            }
+            // safely wrap to handle nulls
+            return Optional.of(getCurrentUser())
+                    .map(User::getUsrId);
         } catch (Exception e) {
             return Optional.empty();
         }
-        return Optional.empty();
-//        return Optional.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
     }
 }

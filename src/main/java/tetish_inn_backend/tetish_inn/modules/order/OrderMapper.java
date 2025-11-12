@@ -8,10 +8,7 @@ import tetish_inn_backend.tetish_inn.modules.order.dto.OrderResponseDTO;
 
     @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
     public interface OrderMapper {
-
         Order toEntity(OrderRequestDTO dto);
-
-        void updateEntityFromDto(OrderRequestDTO dto, @MappingTarget Order entity);
 
         OrderResponseDTO toDto(Order entity);
     }

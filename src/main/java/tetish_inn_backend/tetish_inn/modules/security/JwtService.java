@@ -73,7 +73,7 @@ public class JwtService {
     public boolean validateAccessToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(refreshKey)
+                    .verifyWith(accessKey)
                     .build()
                     .parseSignedClaims(token);
             return true;

@@ -18,4 +18,9 @@ public class UserController {
         return userService.create(request);
     }
 
+    @GetMapping("/user-summary")
+    public ResponseEntity<ApiResponse<Object>> userSummary(){
+        return userService.userSummary();
+    }
+
 }
